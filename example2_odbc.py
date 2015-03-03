@@ -52,7 +52,9 @@ def process_query():
 
 def process_query2():
     cursor1.execute(query)
-    print("Info 5..")
+    print("Info 6..")
+    print("| %10s | %10s | %10s | %10s | %10s | %10s | %10s | %10s |" % ("SSN", "LName", "FName", "MInit", "Salary", "Hours", "Pno", "Hour"))
+    print("")
     n=0
     Tot_Hrs=0
     
@@ -61,21 +63,21 @@ def process_query2():
     OldSSN = SSN
     while 1:
         n = n+1
-
         if SSN == OldSSN:
             if row1[5] != None:
                 Tot_Hrs = Tot_Hrs + row1[5]
-                #SSN = row1[0]
-                #print_result2(row2, Tot_Hrs)
-                #Tot_Hrs = 0
         else:
-            print_result2(row1,Tot_Hrs)
-            Tot_Hrs = 0
-
+            print_result2(Oldrow1,Tot_Hrs)
+            if row1[5] == None:
+                Tot_Hrs = 0
+            else:
+                Tot_Hrs = row1[5]                            
         
         OldSSN = SSN
+        Oldrow1 = row1
         row1 = cursor1.fetchone()
         if not row1:
+            print_result2(Oldrow1,Tot_Hrs)
             break
         SSN=row1[0]
 
@@ -85,7 +87,7 @@ def process_query2():
 
 
 def print_result2(r, Tot_Hrs):
-    print("     %s %s %s %s %s %s %s $%.0f" % (r[0], r[1], r[2], r[3], r[4], r[5], r[6], Tot_Hrs))    
+    print("| %10s | %10s | %10s | %10s | %10s | %10s | %10s | %10.0f |" % (r[0], r[1], r[2], r[3], r[4], r[5], r[6], Tot_Hrs))    
 
 
 
@@ -96,7 +98,7 @@ def print_result(r):
         title = titledict[r[3]]
     except:
         title = "?"
-    print("     %s %s %s. %s $%.0f" % (title, r[1], r[2], r[0], r[4]))
+    print("     %s %s %s. %s Hrs:%.0f" % (title, r[1], r[2], r[0], r[4]))
 
 
 # This call shows that each retrieved row is a Python tuple.
