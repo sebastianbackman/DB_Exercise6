@@ -52,27 +52,40 @@ def process_query():
 
 def process_query2():
     cursor1.execute(query)
-    print("Info ...")
+    print("Info 5..")
     n=0
+    Tot_Hrs=0
+    
+    row1 = cursor1.fetchone()
+    SSN = row1[0]
+    OldSSN = SSN
     while 1:
-        while SSN=OldSSN:
-            row = cursor1.fetchone()
-            if not row:
-                    break
-            n = n+1
-            
-        if n==0:
-            print("No tuples matching the given query were found.") 
-        print_result2(row, data)       
+        n = n+1
+
+        if SSN == OldSSN:
+            if row1[5] != None:
+                Tot_Hrs = Tot_Hrs + row1[5]
+                #SSN = row1[0]
+                #print_result2(row2, Tot_Hrs)
+                #Tot_Hrs = 0
+        else:
+            print_result2(row1,Tot_Hrs)
+            Tot_Hrs = 0
+
+        
+        OldSSN = SSN
+        row1 = cursor1.fetchone()
+        if not row1:
+            break
+        SSN=row1[0]
+
+    if n==0:
+        print("No tuples matching the given query were found.") 
+      
 
 
-def print_result2(r, data):
-    titledict = {"F":"Ms.", "M":"Mr."}
-    try:
-        title = titledict[r[3]]
-    except:
-        title = "?"
-    print("     %s %s %s. %s $%.0f" % (title, r[1], r[2], r[0], r[4]))    
+def print_result2(r, Tot_Hrs):
+    print("     %s %s %s %s %s %s %s $%.0f" % (r[0], r[1], r[2], r[3], r[4], r[5], r[6], Tot_Hrs))    
 
 
 
@@ -87,7 +100,7 @@ def print_result(r):
 
 
 # This call shows that each retrieved row is a Python tuple.
-def process_query2():
+def process_query20():
     cursor1.execute(query)
     print("Raw output for the query, one row at a time:")
     n=0
