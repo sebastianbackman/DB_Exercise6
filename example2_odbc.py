@@ -21,19 +21,23 @@ import sys
 import my_odbc_connect
 import my_odbc_cursor
 
-query = "SELECT LName, FName, MInit, Sex, Salary FROM Employee"
+#query1 = ""
+#query = "SELECT LName, FName, MInit, Sex, Salary FROM Employee"
+
+query = "SELECT SSN, LName, FName, MInit, Salary, Hours, Pno FROM Employee JOIN Works_on ON (SSN=ESSN) ORDER BY SSN"
+
+
 #sys.argv[1]
 #sys.argv[2]
 #sys.argv[3]
 db_name= "database1"
 user_name = "c5dv119_vt15_oi10sbn"
 pwd = "test"
-#query1 = ""
 
 # This call produces "fancy" formatted output.
 def process_query():
     cursor1.execute(query)
-    print("Employees and their salaries:")
+    print("Info ...")
     n=0
     while 1:
         row = cursor1.fetchone()
@@ -44,6 +48,35 @@ def process_query():
     if n==0:
         print("No tuples matching the given query were found.")
 
+
+
+def process_query2():
+    cursor1.execute(query)
+    print("Info ...")
+    n=0
+    while 1:
+        while SSN=OldSSN:
+            row = cursor1.fetchone()
+            if not row:
+                    break
+            n = n+1
+            
+        if n==0:
+            print("No tuples matching the given query were found.") 
+        print_result2(row, data)       
+
+
+def print_result2(r, data):
+    titledict = {"F":"Ms.", "M":"Mr."}
+    try:
+        title = titledict[r[3]]
+    except:
+        title = "?"
+    print("     %s %s %s. %s $%.0f" % (title, r[1], r[2], r[0], r[4]))    
+
+
+
+
 def print_result(r):
     titledict = {"F":"Ms.", "M":"Mr."}
     try:
@@ -51,6 +84,7 @@ def print_result(r):
     except:
         title = "?"
     print("     %s %s %s. %s $%.0f" % (title, r[1], r[2], r[0], r[4]))
+
 
 # This call shows that each retrieved row is a Python tuple.
 def process_query2():
@@ -82,7 +116,7 @@ connection1 = my_odbc_connect.establish_connection(db_name,user_name,pwd)
 print("")
 cursor1 = my_odbc_cursor.establish_cursor(connection1)
 print("")
-process_query()
+process_query2()
 print("")
 
 
