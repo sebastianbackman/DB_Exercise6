@@ -1,0 +1,93 @@
+# This script generates the running company database example from
+# the Elmasri & Navathe text.  
+# To use it first type the following two commands manually
+#             create Elmasri
+#             use Elmasri
+# then place this file in the newly created directory 
+# database/Elmasri/source in the Leap directory, with .src as the
+# extension.  For concreteness, assume that you have named the file
+# company_leap.src.  Then run the command
+#             @ company_leap
+# which will install the database.  (In other words type @, followed
+# by a space, followed by the name of the file without the .src
+# extension.
+# If it is desired to have the database be "persistent," in the sense
+# that it will be available for subsequent invocations of Leap, issue
+# the command 
+#             set temporary off
+# before the  create Elmasri  command.
+#
+# For subsequent use, the create command is not required.
+# After starting leap, just run 
+#    use Elmasri
+#    @ company_leap
+#
+# Note that salary is represented in units of 1000, since integers can only
+# contain four digits in this system.
+# Also, project time is measured in deci-hours, so that the value may be
+# an integer.
+# Commas have been removed from addresses, 
+# since the comma is used as a separator.
+
+relation(Employee)((FName,String,15),(MInit,String,1),(LName,String,15),(SSN,String,9),(BDate,String,11),(Address,String,30),(Sex,String,1),(Salary,Integer,5),(SuperSSN,String,9),(DNO,Integer,2))
+
+relation(Department)((DName,String,15),(DNumber,Integer,5),(MgrSSN,String,9),(MgrStartdate,String,9))
+
+relation(Dept_Locations)((DNumber,Integer,5),(DLocation,String,15))
+
+relation(Project)((PName,String,15),(PNumber,Integer,5),(PLocation,String,15),(DNum,Integer,5))
+
+relation(Works_On)((ESSN,String,9),(PNo,Integer,5),(DeciHours,Integer,5))
+
+relation(Dependent)((ESSN,String,9),(Dependent_Name,String,15),(Sex,String,1),(BDate,String,9),(Relationship,String,8))
+
+add(Employee)(James,E,Borg,888665555,1937-11-11,450 Stone Houston TX,M,55,-,1)
+add(Employee)(Franklin,T,Wong,333445555,1955-12-08,638 Voss Houston TX,M,40,888665555,5)
+add(Employee)(John,B,Smith,123456789,1965-01-09,731 Fondren Houston TX,M,30,333445555,5)
+add(Employee)(Jennifer,S,Wallace,987654321,1941-06-20,291 Berry Bellaire TX,F,43,888665555,4)
+add(Employee)(Alicia,J,Zelaya,999887777,1968-07-19,3321 Castle Spring TX,F,25,987654321,4)
+add(Employee)(Ramesh,K,Narayan,666884444,1962-09-15,975 Fire Oak Humble TX,M,38,333445555,5)
+add(Employee)(Joyce,A,English,453453453,1972-07-31,5631 Rice Houston TX,F,25,333445555,5)
+add(Employee)(Ahmad,V,Jabbar,987987987,1969-03-29,980 Dallas Houston TX,M,25,987654321,4)
+
+add(Department)(Research,5,333445555,78-5-22)
+add(Department)(Administration,4,987654321,85-1-1)
+add(Department)(Headquarters,1,888665555,71-6-19)
+
+add(Dept_Locations)(1,Houston)
+add(Dept_Locations)(4,Stafford)
+add(Dept_Locations)(5,Bellaire)
+add(Dept_Locations)(5,Sugarland)
+add(Dept_Locations)(5,Houston)
+
+add(Project)(ProductX,1,Bellaire,5)
+add(Project)(ProductY,2,Sugarland,5)
+add(Project)(ProductZ,3,Houston,5)
+add(Project)(Computerization,10,Stafford,4)
+add(Project)(Reorganization,20,Houston,1)
+add(Project)(NewBenefits,30,Stafford,4)
+
+add(Works_On)(123456789,1,325)
+add(Works_On)(123456789,2,75)
+add(Works_On)(666884444,3,400)
+add(Works_On)(453453453,1,200)
+add(Works_On)(453453453,2,200)
+add(Works_On)(333445555,2,100)
+add(Works_On)(333445555,3,100)
+add(Works_On)(333445555,10,100)
+add(Works_On)(333445555,20,100)
+add(Works_On)(999887777,30,300)
+add(Works_On)(999887777,10,100)
+add(Works_On)(987987987,10,350)
+add(Works_On)(987987987,30,50)
+add(Works_On)(987654321,30,200)
+add(Works_On)(987654321,20,150)
+add(Works_On)(888665555,20)
+
+add(Dependent)(333445555,Alice,F,76-4-5,Daughter)
+add(Dependent)(333445555,Theodore,M,73-10-22,Son)
+add(Dependent)(333445555,Joy,F,48-5-3,Spouse)
+add(Dependent)(987654321,Abner,M,32-2-29,Spouse)
+add(Dependent)(123456789,Michael,M,78-1-1,Son)
+add(Dependent)(123456789,Alice,F,78-12-31,Daughter)
+add(Dependent)(123456789,Elizabeth,F,57-5-5,Spouse)
