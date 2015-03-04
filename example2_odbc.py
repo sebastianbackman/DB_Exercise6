@@ -52,24 +52,28 @@ def process_query():
 
 def process_query2():
     cursor1.execute(query)
-    print("Summary")
-    print("| %-10s | %-10s | %-10s | %-10s | %-10s | %-10s | %-10s | %-10s |" % ("SSN", "LName", "FName", "MInit", "Salary", "Hours", "Pno", "Known_Hrs"))
-    print("|------------|------------|------------|------------|------------|------------|------------|------------|")
+    print("Summary1")
+    print("| %-12s | %-12s | %-12s | %-12s | %-12s | %-12s | %-12s |" % ("SSN", "LName", "FName", "MInit", "Known_Hrs", "Unknown_Hrs", "Overtime"))
+    print("|--------------|--------------|--------------|--------------|--------------|--------------|--------------|")
 
     n=0
     Tot_Hrs=0
     row1 = cursor1.fetchone()
     SSN = row1[0]
     OldSSN = SSN
+    Unknown_Hrs=0    
     while 1:
         n = n+1
         if SSN == OldSSN:
             if row1[5] != None:
                 Tot_Hrs = Tot_Hrs + row1[5]
+            else:
+                Unknown_Hrs = 1
         else:
-            print_result2(Oldrow1,Tot_Hrs)
+            print_result2(Oldrow1, Tot_Hrs, Unknown_Hrs)
+            Unknown_Hrs = 0
             if row1[5] == None:
-                
+                Unknown_Hrs = 1
                 Tot_Hrs = 0
             else:
                 Tot_Hrs = row1[5]                            
@@ -77,17 +81,26 @@ def process_query2():
         Oldrow1 = row1
         row1 = cursor1.fetchone()
         if not row1:
-            print_result2(Oldrow1,Tot_Hrs)
+            print_result2(Oldrow1, Tot_Hrs, Unknown_Hrs)
             break
         SSN=row1[0]
 
     if n==0:
         print("No tuples matching the given query were found.") 
       
+def print_result2(r, Tot_Hrs, Unknown_Hrs):
+    if Unknown_Hrs == 1:
+        U="Yes"
+    else:
+        U="No"
 
-
-def print_result2(r, Tot_Hrs):
-    print("| %-10s | %-10s | %-10s | %-10s | %-10s | %-10s | %-10s | %-10.0f |" % (r[0], r[1], r[2], r[3], r[4], r[5], r[6], Tot_Hrs))    
+    #if Tot_Hrs > 40:
+    #    Over_time = "Yes"
+    #elif Tot_Hrs + 40*Tot_Hrs <= 40:
+    #    Over_time = "No"
+    #else:
+    #    Over_time = "?"
+    print("| %-12s | %-12s | %-12s | %-12s | %-12s | %-12s | %-12s |" % (r[0], r[1], r[2], r[3], Tot_Hrs, U, r[5]))    
 
 
 
