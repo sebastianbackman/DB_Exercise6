@@ -22,44 +22,20 @@
 import pyodbc
 import sys
 import getpass
+import my_odbc_connect as odbc_con
+import my_odbc_cursor as odbc_curs
 
-# sys.argv is a list of the command-line arguments.
-# sys.argv[0] is the calling command itself.
 
 def echo_args():
     for arg in range(0,len(sys.argv)):
-        print("arg[%s]=%s" %  (arg, sys.argv[arg]))
+        print("arg[%s]=%s" % (arg, sys.argv[arg]))
 
-def establish_connection():
-    if len(sys.argv) != 7:
-        print("Not correct number of arguments. Usage: ./chghrs <DBName> <UserID> <password> <SSN> <PNo> <Hours>.")
-        return
-
-    odbc_db_name = sys.argv[1]
-    odbc_user_name = sys.argv[2]
-
-    if sys.argv[3] == "-p":
-        odbc_pwd = getpass.getpass("Enter the database password: ")
-    else:
-        odbc_pwd = sys.argv[3]
-    try:
-        c = pyodbc.connect("DSN="+odbc_db_name+";Uid="+odbc_user_name+";PWD="+odbc_pwd);
-    except:
-        print("ODBC connection failed.")
-    else:
-        print("ODBC connection: %s" % c)
-        return c
-
-
-def close_connection(c):
-    print("Closing the connection.")
-    c.close()
-
-def handle_query():
+def handle_query(con):
     odbc_ssn = sys.argv[4]
     odbc_pno = sys.argv[5]
     odbc_hrs = round(float(sys.argv[6]),1)  # cast to float and round
 
+    curs = odbc_curs.establish_cursor(con)
 
     # Handle hours parameter
     if odbc_hrs < 0.0 or odbc_hrs > 40.0:
@@ -68,17 +44,32 @@ def handle_query():
     elif (sys.argv[6] == '0'):
         print("hej")
         # Delete employee from project
-        query = "DELETE FROM Works_on WHERE (SSN=%s) AND (PNo=%s)" % (odbc_ssn,odbc_pno)
+        query = "DELETE FROM Works_on WHERE (SSN='%s') AND (PNo='%s')" % (odbc_ssn,odbc_pno)
         print(query)
-    elif:
+    else:
         #CHECK IF EMPLOYEE WORKS ON PNO
+        qCheck = "SELECT * FROM Works_on WHERE (ESSN='%s') AND (PNo='%s')" % (odbc_ssn,odbc_pno)
+        curs.execute(qCheck)
+        print("Raw output for the query, all at once:")
+        result = curs.fetchall()
+        print(result)
+        # IF EMPLOYEE WORKS ON PNO
+        query = "UPDATE Works_on SET Hours = %s WHERE (ESSN='%s') AND (PNo='%s')" % (odbc.hrs,odbc.hrs,odbc.pno)
 
-        query = "UPDATE Works_on SET Hours = %s WHERE (ESSN=%s) AND (PNo=%s)" % (odbc.hrs,odbc.hrs,odbc.pno)
+    odbc_curs.close_cursor(curs)
 
-
+# Check number of arguments
+if len(sys.argv) != 7:
+    print("Not correct number of arguments. Usage: ./chghrs <DBName> <UserID> <password> <SSN> <PNo> <Hours>.")
+    sys.exit()
 
 # Show the arguments for this test program.
 echo_args()
 # Now establish and close the connection using them.
-connection1 = establish_connection()
-close_connection(connection1)
+odbc_db_name = sys.argv[1]
+odbc_user_name = sys.argv[2]
+odbc_pwd = sys.argv[3]
+
+connection = odbc_con.establish_connection(odbc_db_name,odbc_user_name,odbc_pwd)
+handle_query(connection)
+close_connection(connection)
