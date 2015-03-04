@@ -18,58 +18,82 @@
 ### For other Linux distributions which use Unicode in the OS (e.g., Ubuntu)
 ### it may be necessary to use psqlodbcw.so for Python2 as well.
 ### For MySQL, the driver libmyodbc.so works for both Python2 and Python3.
+from __future__ import print_function
 
 import pyodbc
 import sys
 import getpass
-import my_odbc_connect as odbc_con
-import my_odbc_cursor as odbc_curs
+import my_odbc_connect
+import my_odbc_cursor
 
 
 def echo_args():
     for arg in range(0,len(sys.argv)):
         print("arg[%s]=%s" % (arg, sys.argv[arg]))
 
-def handle_query(con):
+def commit_updates(c):
+    print("Committing the updates.")
+    c.commit()
+
+def handle_query(con,curs):
     odbc_ssn = sys.argv[4]
     odbc_pno = sys.argv[5]
-    odbc_hrs = round(float(sys.argv[6]),1)  # cast to float and round
-
-    curs = odbc_curs.establish_cursor(con)
+    if sys.argv[6] == 'NULL':
+        odbc_hrs = sys.argv[6]
+    else:
+        odbc_hrs = round(float(sys.argv[6]),1)  # cast to float and round
 
     # Handle hours parameter
-    if odbc_hrs < 0.0 or odbc_hrs > 40.0:
-        print("Hours must be NULL or between 0 and 40.")
-        return 0
+    if odbc_hrs < 0.0 or odbc_hrs > 40.0 and not 'NULL':
+        print("ERROR: Hours must be NULL or between 0 and 40.", file=sys.stderr)
+        sys.exit()
     elif (sys.argv[6] == '0'):
-        print("hej")
-        # Delete employee from project
-        query = "DELETE FROM Works_on WHERE (SSN='%s') AND (PNo='%s')" % (odbc_ssn,odbc_pno)
-        print(query)
-    else:
-        #CHECK IF EMPLOYEE WORKS ON PNO
-        qCheck = "SELECT * FROM Works_on WHERE (ESSN='%s') AND (PNo='%s')" % (odbc_ssn,odbc_pno)
+        #Check if tuple exists
+        qCheck = "SELECT * FROM Works_on WHERE (ESSN='%s') AND (PNo=%s)" % (odbc_ssn,odbc_pno)
         curs.execute(qCheck)
-        print("Raw output for the query, all at once:")
         result = curs.fetchall()
-        print(result)
-        # IF EMPLOYEE WORKS ON PNO
-        query = "UPDATE Works_on SET Hours = %s WHERE (ESSN='%s') AND (PNo='%s')" % (odbc.hrs,odbc.hrs,odbc.pno)
+        if not result:
+            print("DELETE FAILED: There is no entry for employee %s on project number %s."%(odbc_ssn,odbc_pno), file=sys.stderr)
+            sys.exit()
+        else:
+            # Set query to delete employee from project
+            query = "DELETE FROM Works_on WHERE (ESSN='%s') AND (PNo='%s')" % (odbc_ssn,odbc_pno)
+    else:
+        #Check if employee works on project, if so update else insert new tuple
+        qCheck = "SELECT * FROM Works_on WHERE (ESSN='%s') AND (PNo=%s)" % (odbc_ssn,odbc_pno)
+        curs.execute(qCheck)
+        result = curs.fetchall()
 
-    odbc_curs.close_cursor(curs)
+        if not result:
+            query = "INSERT INTO Works_on VALUES ('%s',%s,%s)" % (odbc_ssn,odbc_pno,odbc_hrs)
+        else:
+            query = "UPDATE Works_on SET Hours = %s WHERE (ESSN='%s') AND (PNo=%s)" % (odbc_hrs,odbc_ssn,odbc_pno)
+    try:
+        curs.execute(query)
+        if sys.argv[6] == '0':
+            print("Deleted entirely the entry for employee %s for project number %s in Works_on")%()
+        else:
+            print("Number of hours which employee %s works on project %s successfully changed to %s" % (odbc_ssn,odbc_pno,odbc_hrs), file=sys.stderr)
+    except pyodbc.IntegrityError, why:
+        print("The update would violate an integrity constraint.")
+        print("The reason is:", why)
+
+
+
 
 # Check number of arguments
 if len(sys.argv) != 7:
     print("Not correct number of arguments. Usage: ./chghrs <DBName> <UserID> <password> <SSN> <PNo> <Hours>.")
     sys.exit()
 
-# Show the arguments for this test program.
-echo_args()
-# Now establish and close the connection using them.
-odbc_db_name = sys.argv[1]
-odbc_user_name = sys.argv[2]
-odbc_pwd = sys.argv[3]
-
-connection = odbc_con.establish_connection(odbc_db_name,odbc_user_name,odbc_pwd)
-handle_query(connection)
-close_connection(connection)
+# Assign arguments
+db_name = sys.argv[1]
+user_name = sys.argv[2]
+pwd = sys.argv[3]
+# Establish connection and execute query
+connection = my_odbc_connect.establish_connection(db_name,user_name,pwd)
+cursor = my_odbc_cursor.establish_cursor(connection)
+handle_query(connection,cursor)
+commit_updates(connection)
+my_odbc_cursor.close_cursor(cursor)
+my_odbc_connect.close_connection(connection)

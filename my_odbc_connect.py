@@ -23,4 +23,3 @@ def establish_connection(odbc_db_name,odbc_user_name,odbc_pwd):
 def close_connection(c):
     c.close()
     print("Closing the connection.")
-
