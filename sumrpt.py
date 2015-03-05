@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # A that program connects to an ODBC database and calculates
 # a summary.
 # It also illustrates the raw format of the returned result.
