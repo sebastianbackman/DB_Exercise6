@@ -90,5 +90,7 @@ cursor1 = my_odbc_cursor.establish_cursor(connection1)
 print("")
 process_query()
 print("")
-my_odbc_cursor.close_connection(connection1)
+my_odbc_cursor.close_cursor(cursor1)
+my_odbc_connect.close_connection(connection1)
+print("")
 
