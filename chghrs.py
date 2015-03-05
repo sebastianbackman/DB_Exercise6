@@ -1,16 +1,18 @@
 #!/usr/bin/python
-# To use python3, append "3" to the above line like this: #!/usr/bin/python3
-# A basic program which connects to an ODBC database.
-# Instead of prompting, this program takes its arguments from the command line.
+# OBLIGATORY SOFTWARE EXERCISE
+# Course:   Introduction to Database Management
+# Date:     2015-03-05
+# By:       John Bergman tfy10jbn, Sebastian Backman oi10sbn
+
+# A program that connects to a ODBC database and performs updates based on program arguments from the command line.
+# Usage: ./chghrs <Database> <Username> <Password> <SSN> <PNo> <Hours>
+# Note: If the argument <Password> = -p, the program will prompt for password.
+
 # The ODBC database name must be described in the ODBC configuration file.
 # ~/.odbc.ini under Unix/Linux.
-# The arguments are <odbc_db_name> <user_id>
-# If the third argument is -p, then there is a prompt for the password.
-# Otherwise, the third argument is the password.
-# Stephen J. Hegner 19 September 2011.
-# Modified for Python 3 compatibility 21 February 2014.
 
-### This script has been tested with both Python2 and Python3
+
+### This script has been tested with both Python2
 ### under PostgreSQL and MySQL running on Debian 7 Linux.
 ### IMPORTANT: For PostgreSQL:
 ###      the ANSI driver psqlodbca.so must be used for Python2;
@@ -18,6 +20,7 @@
 ### For other Linux distributions which use Unicode in the OS (e.g., Ubuntu)
 ### it may be necessary to use psqlodbcw.so for Python2 as well.
 ### For MySQL, the driver libmyodbc.so works for both Python2 and Python3.
+
 from __future__ import print_function
 
 import pyodbc
@@ -106,7 +109,9 @@ pwd = sys.argv[3]
 # Establish connection and execute query
 connection = my_odbc_connect.establish_connection(db_name,user_name,pwd)
 cursor = my_odbc_cursor.establish_cursor(connection)
+print("")
 handle_query(connection,cursor)
+print("")
 commit_updates(connection)
 my_odbc_cursor.close_cursor(cursor)
 my_odbc_connect.close_connection(connection)
