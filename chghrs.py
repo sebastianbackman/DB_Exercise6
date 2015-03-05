@@ -39,44 +39,57 @@ def handle_query(con,curs):
     odbc_ssn = sys.argv[4]
     odbc_pno = sys.argv[5]
     if sys.argv[6] == 'NULL':
-        odbc_hrs = sys.argv[6]
+        odbc_hrs = None
     else:
         odbc_hrs = round(float(sys.argv[6]),1)  # cast to float and round
 
+    # Queries
+    qCheck = "SELECT * FROM Works_on WHERE ESSN=? AND PNo=?"
+    query0 = "DELETE FROM Works_on WHERE ESSN=? AND PNo=?"
+    query1 = "INSERT INTO Works_on VALUES (?,?,?)"
+    query2 = "UPDATE Works_on SET Hours=? WHERE ESSN=? AND PNo=?"
+
     # Handle hours parameter
-    if odbc_hrs < 0.0 or odbc_hrs > 40.0 and not 'NULL':
+    if (odbc_hrs < 0.0 and (sys.argv[6]!='NULL')) or (odbc_hrs > 40.0 and (sys.argv[6]!='NULL')):
         print("ERROR: Hours must be NULL or between 0 and 40.", file=sys.stderr)
         sys.exit()
+
     elif (sys.argv[6] == '0'):
         #Check if tuple exists
-        qCheck = "SELECT * FROM Works_on WHERE (ESSN='%s') AND (PNo=%s)" % (odbc_ssn,odbc_pno)
-        curs.execute(qCheck)
+        curs.execute(qCheck,odbc_ssn,odbc_pno)
         result = curs.fetchall()
+
         if not result:
             print("DELETE FAILED: There is no entry for employee %s on project number %s."%(odbc_ssn,odbc_pno), file=sys.stderr)
             sys.exit()
         else:
-            # Set query to delete employee from project
-            query = "DELETE FROM Works_on WHERE (ESSN='%s') AND (PNo='%s')" % (odbc_ssn,odbc_pno)
+            # Delete employee from project
+            try:
+                curs.execute(query0,odbc_ssn,odbc_pno)
+                print("Deleted entire entry for employee %s for project number %s in Works_on"%(odbc_ssn,odbc_pno))
+            except pyodbc.IntegrityError, why:
+                print("The update would violate an integrity constraint.")
+                print("The reason is:", why)
     else:
         #Check if employee works on project, if so update else insert new tuple
-        qCheck = "SELECT * FROM Works_on WHERE (ESSN='%s') AND (PNo=%s)" % (odbc_ssn,odbc_pno)
-        curs.execute(qCheck)
+        curs.execute(qCheck,odbc_ssn,odbc_pno)
         result = curs.fetchall()
-
         if not result:
-            query = "INSERT INTO Works_on VALUES ('%s',%s,%s)" % (odbc_ssn,odbc_pno,odbc_hrs)
+            # Insert tuple
+            try:
+                curs.execute(query1,odbc_ssn,odbc_pno,odbc_hrs)
+                print("Number of hours which employee %s works on project %s successfully changed to %s" % (odbc_ssn,odbc_pno,odbc_hrs), file=sys.stderr)
+            except pyodbc.IntegrityError, why:
+                print("The update would violate an integrity constraint.")
+                print("The reason is:", why)
         else:
-            query = "UPDATE Works_on SET Hours = %s WHERE (ESSN='%s') AND (PNo=%s)" % (odbc_hrs,odbc_ssn,odbc_pno)
-    try:
-        curs.execute(query)
-        if sys.argv[6] == '0':
-            print("Deleted entirely the entry for employee %s for project number %s in Works_on")%()
-        else:
-            print("Number of hours which employee %s works on project %s successfully changed to %s" % (odbc_ssn,odbc_pno,odbc_hrs), file=sys.stderr)
-    except pyodbc.IntegrityError, why:
-        print("The update would violate an integrity constraint.")
-        print("The reason is:", why)
+            # Update tuple
+            try:
+                curs.execute(query2,odbc_hrs,odbc_ssn,odbc_pno)
+                print("Number of hours which employee %s works on project %s successfully changed to %s" % (odbc_ssn,odbc_pno,odbc_hrs), file=sys.stderr)
+            except pyodbc.IntegrityError, why:
+                print("The update would violate an integrity constraint.")
+                print("The reason is:", why)
 
 
 
