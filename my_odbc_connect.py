@@ -1,6 +1,5 @@
 # Python commands to open and close ODBC connections.
-# Stephen J. Hegner 21 February 2014.
-# Repaired to handle autocommit correctly 22.02.2015
+# Modified version of Stephen J. Hegner 21 February 2014.
 
 import sys
 import pyodbc

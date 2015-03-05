@@ -11,15 +11,8 @@
 # The ODBC database name must be described in the ODBC configuration file.
 # ~/.odbc.ini under Unix/Linux.
 
-
-### This script has been tested with both Python2
+### This script has been tested with Python
 ### under PostgreSQL and MySQL running on Debian 7 Linux.
-### IMPORTANT: For PostgreSQL:
-###      the ANSI driver psqlodbca.so must be used for Python2;
-###      the Unicode driver psqlodbcw.so must be used for Python3.
-### For other Linux distributions which use Unicode in the OS (e.g., Ubuntu)
-### it may be necessary to use psqlodbcw.so for Python2 as well.
-### For MySQL, the driver libmyodbc.so works for both Python2 and Python3.
 
 from __future__ import print_function
 
@@ -108,10 +101,13 @@ user_name = sys.argv[2]
 pwd = sys.argv[3]
 # Establish connection and execute query
 connection = my_odbc_connect.establish_connection(db_name,user_name,pwd)
+print("")
 cursor = my_odbc_cursor.establish_cursor(connection)
 print("")
 handle_query(connection,cursor)
 print("")
 commit_updates(connection)
+print("")
 my_odbc_cursor.close_cursor(cursor)
+print("")
 my_odbc_connect.close_connection(connection)

@@ -1,24 +1,34 @@
 #!/usr/bin/python
 # A that program connects to an ODBC database and calculates
 # a summary.
-# It also illustrates the raw format of the returned result.
 # Sebastian Backman, John Bergman, 5 March 2015
 
-### This script has been tested with both Python
-### under PostgreSQL running on Debian 7 Linux.
+### This script has been tested with Python
+### under PostgreSQL and MySQL running on Debian 7 Linux.
 
+from __future__ import print_function
 import pyodbc	
 import sys
+import getpass
 
 # Functions loaded from local files.
 import my_odbc_connect
 import my_odbc_cursor
 
-query = "SELECT SSN, LName, FName, MInit, Salary, Hours, Pno FROM Employee JOIN Works_on ON (SSN=ESSN) ORDER BY SSN"
+query = "SELECT SSN, LName, FName, MInit, Salary, Hours, Pno FROM Employee JOIN Works_On ON (SSN=ESSN) ORDER BY SSN"
+
+if len(sys.argv) >= 5 or len(sys.argv) <= 2 :
+    print("Error incorrect command, %s" % (sys.argv), file=sys.stderr)
+    print("Usage sumrpt <DBNname> <UserID> <pwdarg>", file=sys.stderr)
+    sys.exit(0)
 
 db_name= sys.argv[1]
 user_name = sys.argv[2]
-pwd = sys.argv[3]
+
+if len(sys.argv)  == 3:
+    pwd = ""
+else:
+    pwd = sys.argv[3]
 
 def process_query():
     cursor1.execute(query)
@@ -91,6 +101,7 @@ print("")
 process_query()
 print("")
 my_odbc_cursor.close_cursor(cursor1)
-my_odbc_connect.close_connection(connection1)
 print("")
+my_odbc_connect.close_connection(connection1)
+
 
